@@ -27,18 +27,19 @@ module.exports = {
       const { errors, valid } = validateLoginInput(username, password);
       const user = await User.findOne({ username });
       if (!valid) {
-        throw new UserInputError("Errors", { error });
+        throw new UserInputError("Errors", { errors });
       }
       if (!user) {
         errors.general = "User not found";
-        throw new UserInputError("User not found", { error });
+        throw new UserInputError("User not found", { errors });
       }
       const match = await bcrypt.compare(password, user.password);
       if (!match) {
         errors.general = "Wrong Credentials";
-        throw new UserInputError("Wrong Credentials", { error });
+        throw new UserInputError("Wrong Credentials", { errors });
       }
       const token = generateToken(user);
+
       return {
         ...user._doc,
         id: user._id,
@@ -49,7 +50,7 @@ module.exports = {
       _,
       { registerInput: { username, password, confirmPassword, email } }
     ) {
-      // TODO: validate user data
+      // validate user data
 
       const { valid, errors } = validateRegisterInput(
         username,
